@@ -26,7 +26,7 @@ export async function generateItinerary(tripData) {
         });
 
         if (!response.ok) {
-            throw new Error('Failed to generate itinerary');
+            throw new Error(`Failed to generate: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
