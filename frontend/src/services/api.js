@@ -33,7 +33,7 @@ export async function generateItinerary(tripData) {
         return data.data;
     } catch (error) {
         console.error('API Error:', error);
-        return null;
+        throw error;
     }
 }
 
