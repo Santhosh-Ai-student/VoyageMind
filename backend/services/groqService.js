@@ -4,12 +4,12 @@ import Groq from 'groq-sdk';
 let groqClient = null;
 
 function getGroqClient() {
-    if (!groqClient && process.env.GROQ_API_KEY) {
-        const key = process.env.GROQ_API_KEY;
-        console.log(`✅ Groq API key loaded: ${key.substring(0, 8)}...${key.substring(key.length - 4)}`);
-        groqClient = new Groq({ apiKey: key });
-    }
-    return groqClient;
+  if (!groqClient && process.env.GROQ_API_KEY) {
+    const key = process.env.GROQ_API_KEY;
+    console.log(`✅ Groq API key loaded: ${key.substring(0, 8)}...${key.substring(key.length - 4)}`);
+    groqClient = new Groq({ apiKey: key });
+  }
+  return groqClient;
 }
 
 /**
@@ -21,55 +21,55 @@ function getGroqClient() {
  * 4. Weather-adjusted scheduling (rain → indoor activities)
  */
 export async function generateItinerary({
-    destination,
-    startDate,
-    endDate,
-    budget,
-    pace,
-    interests,
-    weather,
-    availability,
-    accommodation
+  destination,
+  startDate,
+  endDate,
+  budget,
+  pace,
+  interests,
+  weather,
+  availability,
+  accommodation
 }) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
 
-    const client = getGroqClient();
+  const client = getGroqClient();
 
-    if (!client) {
-        console.log('No Groq API key found');
-        throw new Error('Groq API key not configured.');
-    }
+  if (!client) {
+    console.log('No Groq API key found');
+    throw new Error('Groq API key not configured.');
+  }
 
-    // Build weather context for smart scheduling
-    let weatherContext = '';
-    if (weather && weather.forecast) {
-        const rainyDays = weather.forecast.filter(d => d.rainMm > 2);
-        if (rainyDays.length > 0) {
-            weatherContext = `
+  // Build weather context for smart scheduling
+  let weatherContext = '';
+  if (weather && weather.forecast) {
+    const rainyDays = weather.forecast.filter(d => d.rainMm > 2);
+    if (rainyDays.length > 0) {
+      weatherContext = `
 IMPORTANT WEATHER ADJUSTMENT: Rain is forecasted on these days: ${rainyDays.map(d => d.date).join(', ')}.
 For rainy days: Schedule INDOOR activities (museums, shopping, cafes, temples with covered areas).
 Move outdoor activities (beaches, parks, trekking) to sunny days.`;
-        } else {
-            weatherContext = 'Weather looks favorable. Mix of outdoor and indoor activities recommended.';
-        }
+    } else {
+      weatherContext = 'Weather looks favorable. Mix of outdoor and indoor activities recommended.';
     }
+  }
 
-    // Build accommodation context
-    const accommodationMap = {
-        near_attractions: 'within 1-2km of major tourist attractions to minimize travel time',
-        budget_friendly: 'with best value for money, good ratings, and essential amenities',
-        luxury: 'premium 4-5 star property with excellent facilities and services',
-        central: 'in the heart of the city center with easy access to everything'
-    };
-    const stayPreference = accommodationMap[accommodation] || accommodationMap.near_attractions;
+  // Build accommodation context
+  const accommodationMap = {
+    near_attractions: 'within 1-2km of major tourist attractions to minimize travel time',
+    budget_friendly: 'with best value for money, good ratings, and essential amenities',
+    luxury: 'premium 4-5 star property with excellent facilities and services',
+    central: 'in the heart of the city center with easy access to everything'
+  };
+  const stayPreference = accommodationMap[accommodation] || accommodationMap.near_attractions;
 
-    // Build availability context
-    const availStart = availability?.start || '09:00';
-    const availEnd = availability?.end || '18:00';
+  // Build availability context
+  const availStart = availability?.start || '09:00';
+  const availEnd = availability?.end || '18:00';
 
-    const prompt = `You are an advanced AI travel planner. Generate a comprehensive ${duration}-day itinerary for ${destination}.
+  const prompt = `You are an advanced AI travel planner. Generate a comprehensive ${duration}-day itinerary for ${destination}.
 
 USER INPUTS:
 - Travel Dates: ${startDate} to ${endDate}
@@ -149,70 +149,70 @@ Categories: CULTURE, FOOD, NATURE, SHOPPING, NIGHTLIFE
 Generate ${duration} days with 2-4 activities each. Use real place names and real hotel names for ${destination}.
 IMPORTANT: Group activities by area each day to minimize travel. Recommend hotels that are in the SAME area as that day's activities.`;
 
-    try {
-        console.log(`Calling Groq API for ${destination} with enhanced prompt...`);
+  try {
+    console.log(`Calling Groq API for ${destination} with enhanced prompt...`);
 
-        const completion = await client.chat.completions.create({
-            messages: [{ role: 'user', content: prompt }],
-            model: 'llama-3.3-70b-versatile',
-            temperature: 0.7,
-            max_tokens: 6000,
-        });
+    const completion = await client.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama-3.1-8b-instant',
+      temperature: 0.7,
+      max_tokens: 6000,
+    });
 
-        const text = completion.choices[0]?.message?.content || '';
-        console.log('Groq response received, parsing...');
+    const text = completion.choices[0]?.message?.content || '';
+    console.log('Groq response received, parsing...');
 
-        // Parse JSON from response
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-            const parsed = JSON.parse(jsonMatch[0]);
-            // Attach weather data to response
-            if (weather) {
-                parsed.weather = weather;
-            }
-            console.log('✅ Successfully generated enhanced itinerary!');
-            return addImagesToItinerary(parsed, destination);
-        }
-
-        throw new Error('Could not parse AI response');
-
-    } catch (error) {
-        console.error('Groq API error:', error.message);
-        throw new Error(`AI service error: ${error.message}`);
+    // Parse JSON from response
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      // Attach weather data to response
+      if (weather) {
+        parsed.weather = weather;
+      }
+      console.log('✅ Successfully generated enhanced itinerary!');
+      return addImagesToItinerary(parsed, destination);
     }
+
+    throw new Error('Could not parse AI response');
+
+  } catch (error) {
+    console.error('Groq API error:', error.message);
+    throw new Error(`AI service error: ${error.message}`);
+  }
 }
 
 /**
  * Add images and colors to itinerary activities
  */
 function addImagesToItinerary(itinerary, destination) {
-    const categoryImages = {
-        CULTURE: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=300&h=200&fit=crop',
-        FOOD: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=300&h=200&fit=crop',
-        NATURE: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300&h=200&fit=crop',
-        SHOPPING: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=300&h=200&fit=crop',
-        NIGHTLIFE: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=300&h=200&fit=crop',
-    };
+  const categoryImages = {
+    CULTURE: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=300&h=200&fit=crop',
+    FOOD: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=300&h=200&fit=crop',
+    NATURE: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300&h=200&fit=crop',
+    SHOPPING: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=300&h=200&fit=crop',
+    NIGHTLIFE: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=300&h=200&fit=crop',
+  };
 
-    const categoryColors = {
-        CULTURE: 'bg-blue-100 text-blue-700',
-        FOOD: 'bg-orange-100 text-orange-700',
-        NATURE: 'bg-green-100 text-green-700',
-        SHOPPING: 'bg-pink-100 text-pink-700',
-        NIGHTLIFE: 'bg-purple-100 text-purple-700',
-    };
+  const categoryColors = {
+    CULTURE: 'bg-blue-100 text-blue-700',
+    FOOD: 'bg-orange-100 text-orange-700',
+    NATURE: 'bg-green-100 text-green-700',
+    SHOPPING: 'bg-pink-100 text-pink-700',
+    NIGHTLIFE: 'bg-purple-100 text-purple-700',
+  };
 
-    if (itinerary?.itinerary) {
-        itinerary.itinerary.forEach((day, dayIndex) => {
-            day.activities?.forEach((activity, actIndex) => {
-                activity.id = dayIndex * 100 + actIndex;
-                activity.image = activity.image || categoryImages[activity.category] || categoryImages.CULTURE;
-                activity.categoryColor = categoryColors[activity.category] || 'bg-gray-100 text-gray-700';
-            });
-        });
-    }
+  if (itinerary?.itinerary) {
+    itinerary.itinerary.forEach((day, dayIndex) => {
+      day.activities?.forEach((activity, actIndex) => {
+        activity.id = dayIndex * 100 + actIndex;
+        activity.image = activity.image || categoryImages[activity.category] || categoryImages.CULTURE;
+        activity.categoryColor = categoryColors[activity.category] || 'bg-gray-100 text-gray-700';
+      });
+    });
+  }
 
-    return itinerary;
+  return itinerary;
 }
 
 export default { generateItinerary };
