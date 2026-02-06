@@ -1,5 +1,16 @@
 // API configuration for VoyageMind backend
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// Smart fallback: If env var is missing & we are in production, default to Render URL
+let API_BASE_URL = import.meta.env.VITE_API_URL;
+
+if (!API_BASE_URL) {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        API_BASE_URL = 'http://localhost:3001/api';
+    } else {
+        // Production fallback
+        API_BASE_URL = 'https://voyagemind.onrender.com/api';
+    }
+}
+console.log('🔗 Connecting to Backend:', API_BASE_URL);
 
 /**
  * Generate AI itinerary from backend
