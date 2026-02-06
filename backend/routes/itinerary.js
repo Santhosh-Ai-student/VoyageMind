@@ -11,7 +11,7 @@ const router = express.Router();
  */
 router.post('/generate-itinerary', async (req, res, next) => {
     try {
-        const { destination, startDate, endDate, budget, pace, interests, availability, accommodation } = req.body;
+        const { destination, startDate, endDate, logistics, interests, availability, accommodation } = req.body;
 
         // Validation
         if (!destination || !startDate || !endDate) {
@@ -44,8 +44,7 @@ router.post('/generate-itinerary', async (req, res, next) => {
             destination: destName,
             startDate,
             endDate,
-            budget,
-            pace,
+            logistics,
             interests,
             weather: weatherData,
             availability,

@@ -3,7 +3,6 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import DestinationSelection from './pages/DestinationSelection';
-import RegionDestinations from './pages/RegionDestinations';
 import TripCustomizer from './pages/TripCustomizer';
 import Itinerary from './pages/Itinerary';
 import ThankYou from './pages/ThankYou';
@@ -21,7 +20,6 @@ function App() {
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/destination" element={<DestinationSelection />} />
-                            <Route path="/destination/:region" element={<RegionDestinations />} />
                             <Route path="/customize" element={<TripCustomizer />} />
                             <Route path="/itinerary" element={<Itinerary />} />
                             <Route path="/thank-you" element={<ThankYou />} />

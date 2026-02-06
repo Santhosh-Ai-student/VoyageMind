@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,29 +7,48 @@
 @layer base {
   body {
     @apply antialiased text-gray-900 bg-white;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-family: 'Open Sans', sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Poppins', sans-serif;
   }
 }
 
 @layer components {
+
+  /* GT Holidays Style: Vibrant Yellow Button with Black Text for high contrast conversion */
   .btn-primary {
-    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-full shadow-lg text-sm font-bold uppercase tracking-wide text-black bg-[#FFCC00] hover:bg-[#E6B800] hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFCC00] transition-all duration-300 transform hover:-translate-y-0.5;
   }
 
+  /* Trust Blue Secondary Button */
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center px-6 py-3 border-2 border-[#013D7C] rounded-full shadow-sm text-sm font-bold text-[#013D7C] bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#013D7C] transition-all duration-300;
   }
 
+  /* Gradient Accent used sparingly */
   .btn-accent {
-    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-md text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-accent-600 hover:from-primary-700 hover:to-accent-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500 transition-all duration-200 transform hover:scale-[1.02];
+    @apply inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-full shadow-lg text-sm font-bold text-white bg-gradient-to-r from-[#013D7C] to-[#0256AA] hover:from-[#002B59] hover:to-[#013D7C] transition-all duration-300 transform hover:-translate-y-0.5;
   }
 
+  /* Product Card Style */
   .card {
-    @apply bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200;
+    @apply bg-white rounded-2xl border border-gray-100 transition-shadow duration-300;
+    box-shadow: 0 8px 30px rgb(0 0 0 / 4%);
+  }
+
+  .card:hover {
+    box-shadow: 0 8px 30px rgb(0 0 0 / 8%);
   }
 
   .input {
-    @apply block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-2 px-3;
+    @apply block w-full rounded-lg border-gray-300 bg-white shadow-sm focus:border-[#013D7C] focus:ring-[#013D7C] text-gray-900 py-3 px-4 transition-colors duration-200;
   }
 
   .glass {

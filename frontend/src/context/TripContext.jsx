@@ -10,8 +10,7 @@ export function TripProvider({ children }) {
     const defaultTripData = {
         destination: { name: '', state: '', country: '', image: '' },
         dates: { start: '', end: '' },
-        budget: { amount: 50000, style: 'Standard' },
-        pace: 'Active',
+        logistics: { travelers: 1, departure: '', transport: 'public', budget: '' },
         interests: [],
         itinerary: [],
         weather: null,
@@ -48,12 +47,11 @@ export function TripProvider({ children }) {
         setTripData(prev => ({ ...prev, dates }));
     };
 
-    const updateBudget = (budget) => {
-        setTripData(prev => ({ ...prev, budget }));
-    };
-
-    const updatePace = (pace) => {
-        setTripData(prev => ({ ...prev, pace }));
+    const updateLogistics = (logistics) => {
+        setTripData(prev => ({
+            ...prev,
+            logistics: { ...prev.logistics, ...logistics }
+        }));
     };
 
     const toggleInterest = (interestId) => {
@@ -75,7 +73,9 @@ export function TripProvider({ children }) {
             tips: data.tips || [],
             weather: data.weather || null,
             bookingInsights: data.bookingInsights || [],
-            scheduleAdjustments: data.scheduleAdjustments || []
+            scheduleAdjustments: data.scheduleAdjustments || [],
+            estimatedTripCost: data.estimatedTripCost || null,
+            transportAdvice: data.transportAdvice || null
         }));
     };
 
@@ -88,8 +88,7 @@ export function TripProvider({ children }) {
         tripData,
         updateDestination,
         updateDates,
-        updateBudget,
-        updatePace,
+        updateLogistics,
         toggleInterest,
         updateItinerary,
         resetTrip

@@ -24,25 +24,38 @@ const cityCoordinates = {
     'maldives': { lat: 3.2028, lon: 73.2207 },
     'chennai': { lat: 13.0827, lon: 80.2707 },
     'hyderabad': { lat: 17.3850, lon: 78.4867 },
+    'ooty': { lat: 11.4102, lon: 76.6950 },
+    'coorg': { lat: 12.3375, lon: 75.8069 },
+    'munnar': { lat: 10.0889, lon: 77.0595 },
+    'kodaikanal': { lat: 10.2381, lon: 77.4892 },
+    'shimla': { lat: 31.1048, lon: 77.1734 },
+    'darjeeling': { lat: 27.0410, lon: 88.2663 },
+    // International
+    'greenland': { lat: 64.1814, lon: -51.6941 }, // Nuuk
+    'iceland': { lat: 64.9631, lon: -19.0208 },
+    'antarctica': { lat: -75.2509, lon: -0.0713 },
+    'switzerland': { lat: 46.8182, lon: 8.2275 },
+    'new zealand': { lat: -40.9006, lon: 174.8860 },
 };
 
 /**
- * Get weather forecast for a destination using OpenMeteo
+ * Get weather forecast for a destination using OpenMeteo with fallback to wttr.in
  */
 export async function getWeatherForecast(location, startDate, endDate) {
+    // Try Primary API (OpenMeteo)
     try {
         let coords = cityCoordinates[location.toLowerCase()];
 
         // 1. Get Coordinates if not cached
         if (!coords) {
             const geoResponse = await axios.get(GEOCODING_URL, {
-                params: { name: location, count: 1, limit: 1 }
+                params: { name: location, count: 1, limit: 1 },
+                timeout: 5000
             });
 
             if (!geoResponse.data.results || geoResponse.data.results.length === 0) {
-                // Return mock if location not found to prevent breaking flow
-                console.warn(`Location not found: ${location}, using mock data.`);
-                return getMockWeatherData(location);
+                console.warn(`Location not found: ${location}, trying backup API.`);
+                throw new Error('Location not found');
             }
 
             coords = {
@@ -52,22 +65,21 @@ export async function getWeatherForecast(location, startDate, endDate) {
         }
 
         // 2. Get Forecast from OpenMeteo
-        // Using 'daily' parameters for forecast
         const forecastResponse = await axios.get(OPEN_METEO_URL, {
             params: {
                 latitude: coords.lat,
                 longitude: coords.lon,
                 daily: 'weather_code,temperature_2m_max,temperature_2m_min,rain_sum',
                 timezone: 'auto',
-                forecast_days: 14 // Get ample data
-            }
+                forecast_days: 14
+            },
+            timeout: 5000
         });
 
         const dailyData = forecastResponse.data.daily;
 
         // 3. Process Data
         const processedForecast = [];
-        // OpenMeteo returns arrays for each property (time, temperature_2m_max, etc.)
         for (let i = 0; i < dailyData.time.length; i++) {
             processedForecast.push({
                 date: dailyData.time[i],
@@ -78,25 +90,55 @@ export async function getWeatherForecast(location, startDate, endDate) {
             });
         }
 
-        // Filter for trip dates if provided, otherwise return next 5 days
-        // Note: OpenMeteo free tier only gives 7-14 days forecast.
-        // For far future dates, we might need to rely on the general forecast or mock.
-
         const alerts = checkForAlerts(processedForecast);
 
         return {
             location,
             coordinates: coords,
-            forecast: processedForecast.slice(0, 7), // Return first 7 days
+            forecast: processedForecast.slice(0, 7),
             alerts,
             summary: generateWeatherSummary(processedForecast.slice(0, 7), alerts)
         };
 
-    } catch (error) {
-        console.error('Weather API error:', error.message);
-        return getMockWeatherData(location);
+    } catch (primaryError) {
+        console.warn('OpenMeteo failed, trying wttr.in backup:', primaryError.message);
+
+        // Try Secondary API (wttr.in)
+        try {
+            return await getWeatherFromWttrIn(location);
+        } catch (secondaryError) {
+            console.error('All weather APIs failed. Using mock.', secondaryError.message);
+            return getMockWeatherData(location);
+        }
     }
 }
+
+/**
+ * Backup: Get weather from wttr.in (JSON format)
+ */
+async function getWeatherFromWttrIn(location) {
+    const response = await axios.get(`https://wttr.in/${location}?format=j1`, { timeout: 5000 });
+    const data = response.data;
+
+    const weather = data.weather.map(day => ({
+        date: day.date,
+        tempHigh: parseInt(day.maxtempC),
+        tempLow: parseInt(day.mintempC),
+        condition: day.hourly[4].weatherDesc[0].value, // Midday condition
+        rainMm: parseFloat(day.hourly[0].precipMM) // Rough estimate
+    }));
+
+    const alerts = checkForAlerts(weather);
+
+    return {
+        location,
+        coordinates: { lat: 0, lon: 0 }, // Wttr doesn't return easy coords in this view
+        forecast: weather.slice(0, 7),
+        alerts,
+        summary: generateWeatherSummary(weather.slice(0, 7), alerts)
+    };
+}
+
 
 /**
  * Interpret WMO Weather Codes
@@ -149,27 +191,29 @@ function generateWeatherSummary(forecasts, alerts) {
     const avgTemp = Math.round(
         forecasts.reduce((sum, d) => sum + (d.tempHigh + d.tempLow) / 2, 0) / forecasts.length
     );
-    const conditions = forecasts.map(d => d.condition);
-    const mainCondition = conditions.sort((a, b) =>
-        conditions.filter(v => v === a).length - conditions.filter(v => v === b).length
-    ).pop();
+    // Safer condition extraction
+    const conditions = forecasts.map(d => d.condition || 'Clear');
+    let mainCondition = 'Clear';
+    if (conditions.length > 0) {
+        mainCondition = conditions.sort((a, b) =>
+            conditions.filter(v => v === a).length - conditions.filter(v => v === b).length
+        ).pop();
+    }
 
     return `Avg ${avgTemp}°C, mostly ${mainCondition.toLowerCase()}`;
 }
 
 /**
  * Return mock weather data when API unavailable
+ * Now returns cleaner 'Unavailable' state rather than fake hot weather
  */
 function getMockWeatherData(location) {
+    // Return neutral data instead of misleading 30C
     return {
         location,
-        forecast: [
-            { date: new Date().toISOString().split('T')[0], tempHigh: 30, tempLow: 22, condition: 'Sunny', rainMm: 0 },
-            { date: 'Day 2', tempHigh: 29, tempLow: 21, condition: 'Partly Cloudy', rainMm: 0 },
-            { date: 'Day 3', tempHigh: 31, tempLow: 23, condition: 'Sunny', rainMm: 0 },
-        ],
+        forecast: [],
         alerts: [],
-        summary: 'Warm and sunny (Offline Estimate)',
+        summary: 'Forecast unavailable (Offline)',
         mock: true
     };
 }

@@ -24,8 +24,7 @@ export async function generateItinerary({
   destination,
   startDate,
   endDate,
-  budget,
-  pace,
+  logistics,
   interests,
   weather,
   availability,
@@ -69,93 +68,134 @@ Move outdoor activities (beaches, parks, trekking) to sunny days.`;
   const availStart = availability?.start || '09:00';
   const availEnd = availability?.end || '18:00';
 
+  // Build logistics context
+  const travelers = logistics?.travelers || 1;
+  const transportPref = logistics?.transport || 'public';
+  console.log('Received logistics:', logistics);
+  const userBudget = logistics?.budget ? parseInt(logistics.budget) : null;
+  console.log('Parsed User Budget:', userBudget);
+  const departureInfo = logistics?.departure ? `Departing from: ${logistics.departure}` : 'Departure location not specified';
+
+  // Note: We are now relying on the AI to estimate the specific trip cost and validate availability.
+  // This allows dynamic validation (e.g., ₹2000 might be enough for a local bus trip, but not for a flight).
+
   const prompt = `You are an advanced AI travel planner. Generate a comprehensive ${duration}-day itinerary for ${destination}.
 
 USER INPUTS:
-- Travel Dates: ${startDate} to ${endDate}
-- Budget: ₹${budget?.amount || 50000} (${budget?.style || 'Standard'} style)
-- Activity Pace: ${pace || 'active'}
+- Travel Dates: ${startDate} to ${endDate} (${duration} days)
+- Travelers: ${travelers} Person(s)
+- Transport Preference: ${transportPref}
+- ${departureInfo}
+- Total Budget: ${userBudget ? '₹' + userBudget : 'Not specified'}
 - Interests: ${interests?.join(', ') || 'general sightseeing'}
-- Daily Availability: ${availStart} to ${availEnd} (plan activities within this window)
+- Daily Availability: ${availStart} to ${availEnd}
 - Accommodation Preference: ${stayPreference}
 
 WEATHER DATA:
 ${weatherContext}
 
 OPTIMIZATION REQUIREMENTS:
-1. TIME-SLOT PLANNING: Include crowd level hints like "(low crowd window)" for morning activities at popular spots
-2. SMART HOTEL STRATEGY: Cluster activities by area. If Day 1-2 activities are in one area and Day 3-4 in another area, recommend DIFFERENT hotels for each cluster to minimize commute time. Each day/cluster should have a hotel within 1-2km of that day's activities.
-3. BOOKING INSIGHTS: For any ticketed attraction, provide booking timing advice
-4. WEATHER-ADJUSTED SCHEDULING: If rain expected, assign outdoor activities to clear days
+1. **CRITICAL: BUDGET VALIDATION & ESTIMATION**
+   - **STEP 1 [CALCULATE MINIMUM VIABLE COST]**:
+     * Calculate the *Absolute Minimum Cost* for this trip using the **Budget Tier**:
+     * **Min Transport**:
+       - Short Distance (< 400km, e.g. Chittoor-Chennai): ₹150/person (Local Bus/Train)
+       - Domestic India: ₹1,000/person (Sleeper Class)
+       - International: Use realistic flight costs (e.g. ₹25k Asia, ₹80k Europe).
+     * **Min Daily Cost (Stay + Food + Travel)**:
+       - **Domestic (India)**: ₹600/day per person (Ultra Budget).
+       - **International**: ₹6,000/day per person (Strict baseline).
+     * **Formula**: (Min Transport * Travelers) + (Min Daily Cost * Days * Travelers)
+     * This is the "Floor Price".
 
-Return ONLY valid JSON (no markdown, no code blocks):
+   - **STEP 2 [CALCULATE ONLY]**:
+     * Calculate the final minTotalCost using the formula above.
+     * RETURN this value in the JSON response as minTotalCost (number).
+     * **DO NOT** validate the budget yourself. **DO NOT** return an error JSON.
+     * Always generate a valid itinerary structure. The application code will handle validation.
+
+   - **STEP 3 [CONSISTENT ESTIMATION]**:
+     * Your "estimatedTripCost" MUST be realistic and separate from the "minTotalCost".
+     * "estimatedTripCost" is what a *comfortable* trip costs.
+     * "minTotalCost" is the *absolute floor* (survival mode).
+
+2. **ITINERARY STRUCTURE**:
+   - **stayStrategy**: MANDATORY OBJECT. Must include "summary" (best area to stay) and "clusters" array.
+   - **Hotel**: Suggest a SPECIFIC, REAL hotel for each day matching the "${stayPreference}" tier.
+   - **Activities**: STRICTLY provide **EXACTLY 3** main activities per day.
+     * Activity 1: Morning
+     * Activity 2: Afternoon
+     * Activity 3: Evening
+   - **Logistics**: Include distance from the selected Hotel to each activity.
+
+3. **FORMATTING**:
+   - Times must be specific.
+   - Distances must be realistic.
+
+Return ONLY valid JSON (no markdown).
+Required JSON Structure:
 {
-  "itinerary": [
-    {
-      "day": 1,
-      "title": "Day theme",
-      "date": "Day 1",
-      "area": "Area name where most activities are",
-      "hotel": {
-        "name": "Recommended hotel for this day/area",
-        "area": "Locality name",
-        "distance": "0.8km to today's activities",
-        "priceRange": "₹2000-3500/night",
-        "whyHere": "Short reason why stay here for this day"
-      },
-      "activities": [
-        {
-          "time": "9:00 AM",
-          "endTime": "11:30 AM",
-          "category": "CULTURE",
-          "title": "Activity name (low crowd window)",
-          "description": "Description with tips",
-          "location": "Specific area/locality",
-          "distanceFromHotel": "0.5km",
-          "crowdLevel": "low",
-          "isIndoor": false
-        }
-      ]
-    }
-  ],
+  "minTotalCost": 4500,
+  "estimatedTripCost": {
+    "total": "e.g., ₹45,000",
+    "breakdown": "Flight: ₹X, Stay: ₹Y, Food: ₹Z, Activities: ₹W",
+    "note": "Estimated based on ${travelers} travelers staying at [Hotel Tier]"
+  },
+  "transportAdvice": {
+    "title": "Best Transport",
+    "recommendation": "Use Metro/Cab...",
+    "priceEstimate": "₹500/day"
+  },
   "stayStrategy": {
-    "summary": "Brief explanation of hotel strategy (e.g., 'Stay in Marina for Day 1-2, move to Mylapore for Day 3-4')",
-    "totalHotels": 2,
+    "summary": "Best area to stay (e.g. City Center)",
     "clusters": [
-      {
-        "days": "1-2",
-        "hotel": "Hotel Name",
-        "area": "Area Name",
-        "reason": "Close to beaches and Marina attractions"
-      }
+      { "days": "1-3", "hotel": "Hotel Name", "area": "Area Name" }
     ]
   },
-  "bookingInsights": [
-    {
-      "activity": "Activity name",
-      "insight": "Book 24-48 hours in advance for best price"
-    }
-  ],
-  "scheduleAdjustments": [
-    {
-      "originalDay": 3,
-      "adjustment": "Outdoor beach activity moved to Day 2 due to rain forecast on Day 3"
-    }
-  ],
-  "tips": ["Tip 1", "Tip 2", "Tip 3"]
+  "itinerary": [
+     {
+       "day": 1,
+       "title": "Day Theme",
+       "hotel": { 
+          "name": "Exact Hotel Name", 
+          "area": "Location", 
+          "distanceToAttractions": "2 km from City Center"
+       },
+       "activities": [
+         { 
+           "time": "09:00 AM - 12:00 PM",
+           "title": "Activity Name", 
+           "description": "Description...", 
+           "category": "CULTURE",
+           "distanceFromHotel": "2.5 km"
+         },
+         {
+           "time": "01:00 PM - 03:00 PM",
+           "title": "Activity Name", 
+           "description": "...",
+           "category": "FOOD",
+           "distanceFromHotel": "3.0 km"
+         },
+         {
+           "time": "05:00 PM - 08:00 PM",
+           "title": "Activity Name", 
+           "description": "...",
+           "category": "NIGHTLIFE",
+           "distanceFromHotel": "1.5 km"
+         }
+       ]
+     }
+  ]
 }
-
-Categories: CULTURE, FOOD, NATURE, SHOPPING, NIGHTLIFE
-Generate ${duration} days with 2-4 activities each. Use real place names and real hotel names for ${destination}.
-IMPORTANT: Group activities by area each day to minimize travel. Recommend hotels that are in the SAME area as that day's activities.`;
+If generation fails, return empty JSON.`;
 
   try {
     console.log(`Calling Groq API for ${destination} with enhanced prompt...`);
 
     const completion = await client.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
-      model: 'llama-3.3-70b-versatile',
-      temperature: 0.7,
+      model: 'llama-3.1-8b-instant',
+      temperature: 0.3, // Lower temperature for consistent calculation
       max_tokens: 6000,
     });
 
@@ -166,6 +206,24 @@ IMPORTANT: Group activities by area each day to minimize travel. Recommend hotel
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
+
+      // ---------------------------------------------------------
+      // JAVASCRIPT BUDGET VALIDATION (Replaces AI Validation)
+      // ---------------------------------------------------------
+      if (userBudget && parsed.minTotalCost) {
+        console.log(`💰 Budget Check: User ₹${userBudget} vs Min ₹${parsed.minTotalCost}`);
+
+        if (userBudget < parsed.minTotalCost) {
+          console.log('❌ Budget too low. Returning error object.');
+          return {
+            error: "Budget Too Low",
+            reason: `The absolute minimum cost for ${travelers} people to ${destination} is approx ₹${parsed.minTotalCost}. Your budget ₹${userBudget} is not enough.`,
+            breakdown: `Min Transport + Min Daily x ${duration} days`
+          };
+        }
+      }
+      // ---------------------------------------------------------
+
       // Attach weather data to response
       if (weather) {
         parsed.weather = weather;
@@ -178,6 +236,10 @@ IMPORTANT: Group activities by area each day to minimize travel. Recommend hotel
 
   } catch (error) {
     console.error('Groq API error:', error.message);
+    // If it's a JSON parse error from our explicit error return, pass it through
+    if (error.message.includes('Budget Too Low')) {
+      throw new Error('Budget Too Low');
+    }
     throw new Error(`AI service error: ${error.message}`);
   }
 }
@@ -204,10 +266,31 @@ function addImagesToItinerary(itinerary, destination) {
 
   if (itinerary?.itinerary) {
     itinerary.itinerary.forEach((day, dayIndex) => {
-      day.activities?.forEach((activity, actIndex) => {
-        activity.id = dayIndex * 100 + actIndex;
-        activity.image = activity.image || categoryImages[activity.category] || categoryImages.CULTURE;
-        activity.categoryColor = categoryColors[activity.category] || 'bg-gray-100 text-gray-700';
+      // Ensure activities is an array
+      if (!Array.isArray(day.activities)) {
+        day.activities = [];
+      }
+
+      // Fix: Handle case where AI returns strings instead of objects
+      day.activities = day.activities.map((activity, actIndex) => {
+        // Defensive transformation: If it's not a valid object, make it one
+        let actObj;
+
+        if (typeof activity === 'string') {
+          actObj = { title: activity, description: 'Explore this location', category: 'CULTURE' };
+        } else if (typeof activity !== 'object' || activity === null) {
+          actObj = { title: 'Unknown Activity', description: 'Explore this location', category: 'CULTURE' };
+        } else {
+          // It is an object, but let's clone it to be safe against frozen objects
+          actObj = { ...activity };
+        }
+
+        // Now safe to assign properties
+        actObj.id = dayIndex * 100 + actIndex;
+        actObj.image = actObj.image || categoryImages[actObj.category] || categoryImages.CULTURE;
+        actObj.categoryColor = categoryColors[actObj.category] || 'bg-gray-100 text-gray-700';
+
+        return actObj;
       });
     });
   }

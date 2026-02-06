@@ -4,9 +4,16 @@ import {
     Zap,
     Globe,
     ArrowRight,
-    ArrowLeft
+    ArrowLeft,
+    Target,
+    Eye
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+
+// Team Images
+import santhoshImg from '../assets/team/santhosh.jpeg';
+import bharathImg from '../assets/team/bharath.jpeg';
+import rayhanImg from '../assets/team/rayhan.jpeg';
 
 const features = [
     {
@@ -26,28 +33,21 @@ const features = [
     },
 ];
 
-const stats = [
-    { value: '50K+', label: 'Happy Travelers' },
-    { value: '150+', label: 'Destinations' },
-    { value: '98%', label: 'Satisfaction Rate' },
-    { value: '24/7', label: 'AI Support' },
-];
-
 const team = [
     {
-        name: 'Santhosh',
-        role: 'Full Stack Developer (Team Lead)',
-        image: '/Assest/santhosh.jpeg',
-    },
-    {
-        name: 'Mughal Rayhan',
-        role: 'Web Tester',
-        image: '/Assest/rayhan.jpeg',
-    },
-    {
         name: 'Bharath',
-        role: 'UX Designer',
-        image: '/Assest/bharath.jpeg',
+        role: 'Frontend Developer',
+        image: bharathImg,
+    },
+    {
+        name: 'Santhosh',
+        role: 'Backend Developer & Lead',
+        image: santhoshImg,
+    },
+    {
+        name: 'Rayhan',
+        role: 'UI/UX Designer',
+        image: rayhanImg,
     },
 ];
 
@@ -57,64 +57,68 @@ export default function About() {
     return (
         <div className="min-h-[calc(100vh-4rem)]">
             {/* Hero Section */}
-            <section className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-primary-50 via-white to-accent-50 overflow-hidden">
+            <section className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#013D7C] to-[#002a5c] overflow-hidden text-white">
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute top-1/4 right-0 w-96 h-96 bg-primary-100 rounded-full blur-3xl opacity-40"></div>
-                    <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-accent-100 rounded-full blur-3xl opacity-40"></div>
+                    <div className="absolute top-1/4 right-0 w-96 h-96 bg-[#FFCC00] rounded-full blur-[120px] opacity-20"></div>
                 </div>
 
                 <div className="max-w-4xl mx-auto text-center relative z-10">
                     {/* Back Button */}
                     <button
-                        onClick={() => navigate(-1)}
-                        className="flex items-center gap-2 text-gray-600 hover:text-primary-600 mb-6 transition-colors absolute left-0 top-0"
+                        onClick={() => navigate('/')}
+                        className="flex items-center gap-2 text-blue-200 hover:text-white mb-8 transition-colors absolute left-0 top-0"
                     >
                         <ArrowLeft className="w-5 h-5" />
                         <span className="font-medium">Back</span>
                     </button>
 
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur border border-primary-100 rounded-full mb-6">
-                        <Sparkles className="w-4 h-4 text-primary-600" />
-                        <span className="text-sm font-medium text-primary-700">About VoyageMind</span>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur border border-white/20 rounded-full mb-6">
+                        <Sparkles className="w-4 h-4 text-[#FFCC00]" />
+                        <span className="text-sm font-medium text-blue-50">About VoyageMind</span>
                     </div>
 
-                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                        Revolutionizing Travel with
-                        <span className="gradient-text-blue"> Artificial Intelligence</span>
+                    <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 leading-tight font-[Poppins]">
+                        Travel Planning, <br />
+                        <span className="text-[#FFCC00]">Finally Solved.</span>
                     </h1>
 
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                        VoyageMind combines cutting-edge AI technology with deep travel expertise
-                        to create personalized, intelligent travel experiences that adapt to your
-                        preferences and real-world conditions.
+                    <p className="text-lg text-blue-100 max-w-2xl mx-auto leading-relaxed font-[Open Sans]">
+                        We built VoyageMind because we love exploring the world but hate the hours spent planning it.
+                        We're here to fix that.
                     </p>
                 </div>
             </section>
 
-            {/* Mission Section */}
-            <section className="py-16 px-4 sm:px-6 lg:px-8">
+            {/* Mission & Vision Section */}
+            <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
                 <div className="max-w-6xl mx-auto">
-                    <div className="grid md:grid-cols-2 gap-12 items-center">
-                        <div>
-                            <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Mission</h2>
-                            <p className="text-gray-600 mb-6 leading-relaxed">
-                                We believe travel planning should be effortless, not stressful. Our mission
-                                is to democratize intelligent travel planning, making it accessible to everyone
-                                regardless of their travel experience or planning expertise.
-                            </p>
-                            <p className="text-gray-600 leading-relaxed">
-                                By leveraging AI, we analyze millions of data points – from weather patterns
-                                and crowd levels to local events and hidden gems – to craft itineraries that
-                                are not just good, but perfect for you.
-                            </p>
+                    <div className="grid md:grid-cols-2 gap-16">
+                        {/* Mission */}
+                        <div className="flex gap-6">
+                            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center flex-shrink-0">
+                                <Target className="w-8 h-8 text-[#013D7C]" />
+                            </div>
+                            <div>
+                                <h3 className="text-2xl font-bold text-[#013D7C] mb-4 font-[Poppins]">Our Mission</h3>
+                                <p className="text-gray-600 leading-relaxed text-lg">
+                                    To bring the joy back to travel. We want you to spend less time scrolling through tabs
+                                    and more time dreaming about your next adventure.
+                                </p>
+                            </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            {stats.map((stat, idx) => (
-                                <div key={idx} className="card p-6 text-center">
-                                    <div className="text-3xl font-bold gradient-text-blue mb-1">{stat.value}</div>
-                                    <div className="text-sm text-gray-500">{stat.label}</div>
-                                </div>
-                            ))}
+
+                        {/* Vision */}
+                        <div className="flex gap-6">
+                            <div className="w-16 h-16 bg-yellow-50 rounded-2xl flex items-center justify-center flex-shrink-0">
+                                <Eye className="w-8 h-8 text-yellow-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-2xl font-bold text-[#013D7C] mb-4 font-[Poppins]">Our Vision</h3>
+                                <p className="text-gray-600 leading-relaxed text-lg">
+                                    A future where your perfect trip is just one click away. No stress, no confusion—just
+                                    pure excitement for the journey ahead.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -123,24 +127,20 @@ export default function About() {
             {/* Features Section */}
             <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
                 <div className="max-w-6xl mx-auto">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">Why VoyageMind?</h2>
-                        <p className="text-gray-600 max-w-2xl mx-auto">
-                            Our AI-powered platform offers unique advantages that traditional travel
-                            planning tools simply can't match.
-                        </p>
-                    </div>
-
                     <div className="grid md:grid-cols-3 gap-8">
                         {features.map((feature, idx) => {
                             const Icon = feature.icon;
                             return (
-                                <div key={idx} className="card p-8 text-center card-hover">
-                                    <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                                        <Icon className="w-8 h-8 text-white" />
+                                <div key={idx} className="card p-8 text-center hover:shadow-xl transition-all duration-300 border-t-4 border-[#013D7C]">
+                                    <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <Icon className="w-7 h-7 text-[#013D7C]" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                                    <p className="text-gray-600">{feature.description}</p>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-3 font-[Poppins]">{feature.title}</h3>
+                                    <p className="text-gray-600 font-[Open Sans]">{
+                                        feature.title === 'AI-Powered Planning' ? "We do the heavy lifting. Our tech finds the best spots so you don't have to." :
+                                            feature.title === 'Real-Time Optimization' ? "Rain check? We've got you. Plans adjust automatically so your trip stays smooth." :
+                                                "Discover the places the guidebooks miss. We help you travel like a local, not a tourist."
+                                    }</p>
                                 </div>
                             );
                         })}
@@ -149,27 +149,26 @@ export default function About() {
             </section>
 
             {/* Team Section */}
-            <section className="py-16 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">Meet the Team</h2>
-                        <p className="text-gray-600">
-                            The passionate minds behind VoyageMind
-                        </p>
+            <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white border-t border-gray-100">
+                <div className="max-w-5xl mx-auto">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl font-bold text-[#013D7C] mb-4 font-[Poppins]">Meet the Developers</h2>
+                        <p className="text-gray-600">The passionate minds building the future of travel.</p>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-8">
+                    <div className="grid md:grid-cols-3 gap-12 justify-center">
                         {team.map((member, idx) => (
-                            <div key={idx} className="text-center">
-                                <div className="w-32 h-32 rounded-full overflow-hidden mx-auto mb-4 ring-4 ring-primary-100 bg-gray-200">
+                            <div key={idx} className="group relative text-center">
+                                <div className="w-32 h-32 mx-auto mb-6 relative">
+                                    <div className="absolute inset-0 bg-[#FFCC00] rounded-full blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
                                     <img
                                         src={member.image}
                                         alt={member.name}
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-cover rounded-full border-4 border-white shadow-lg relative z-10"
                                     />
                                 </div>
-                                <h3 className="font-semibold text-gray-900">{member.name}</h3>
-                                <p className="text-sm text-gray-500">{member.role}</p>
+                                <h3 className="text-xl font-bold text-gray-900 font-[Poppins]">{member.name}</h3>
+                                <p className="text-sm font-semibold text-[#013D7C] uppercase tracking-wide mt-1">{member.role}</p>
                             </div>
                         ))}
                     </div>
@@ -177,15 +176,15 @@ export default function About() {
             </section>
 
             {/* CTA Section */}
-            <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-primary-600 to-primary-800">
+            <section className="py-16 px-4 sm:px-6 lg:px-8 bg-[#013D7C]">
                 <div className="max-w-4xl mx-auto text-center">
-                    <h2 className="text-3xl font-bold text-white mb-4">
+                    <h2 className="text-3xl font-bold text-white mb-4 font-[Poppins]">
                         Ready to Transform Your Travel Experience?
                     </h2>
-                    <p className="text-primary-100 mb-8 max-w-2xl mx-auto">
-                        Join thousands of travelers who have discovered the power of AI-driven travel planning.
+                    <p className="text-blue-100 mb-8 max-w-2xl mx-auto text-lg">
+                        Join us on this journey.
                     </p>
-                    <Link to="/destination" className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary-700 font-semibold rounded-full hover:bg-gray-100 transition-colors shadow-lg">
+                    <Link to="/destination" className="inline-flex items-center gap-2 px-8 py-4 bg-[#FFCC00] text-[#013D7C] font-bold rounded-full hover:bg-yellow-400 transition-colors shadow-lg shadow-yellow-500/20">
                         Start Planning Now
                         <ArrowRight className="w-5 h-5" />
                     </Link>

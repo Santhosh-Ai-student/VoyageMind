@@ -66,116 +66,101 @@ export default function ThankYou() {
     };
 
     return (
-        <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-4 py-16 relative overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-blue-50">
+        <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-4 py-16 relative overflow-hidden bg-[#013D7C]">
 
-            {/* Decorative background elements */}
+            {/* Background Effects */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {/* Real World Map Background Image */}
+                <div className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] bg-[#FFCC00] rounded-full blur-[150px] opacity-20"></div>
+                <div className="absolute -bottom-[20%] -left-[10%] w-[600px] h-[600px] bg-[#4ECDC4] rounded-full blur-[150px] opacity-10"></div>
                 <div
-                    className="absolute inset-0"
+                    className="absolute inset-0 opacity-10"
                     style={{
                         backgroundImage: `url(${worldMapImg})`,
-                        backgroundSize: '120% auto',
+                        backgroundSize: 'cover',
                         backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat',
-                        opacity: 0.15,
-                        filter: 'grayscale(100%)'
+                        filter: 'contrast(1.2)'
                     }}
                 ></div>
-
-                <div className="absolute top-20 left-10 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-30 animate-float"></div>
-                <div className="absolute bottom-20 right-10 w-80 h-80 bg-blue-200 rounded-full blur-3xl opacity-30 animate-float" style={{ animationDelay: '-3s' }}></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-200 rounded-full blur-3xl opacity-20 animate-float" style={{ animationDelay: '-5s' }}></div>
             </div>
 
             {/* Main Content */}
             <div className="relative z-10 max-w-2xl mx-auto text-center animate-fade-in">
 
                 {/* Success Icon */}
-                <div className="mb-8">
+                <div className="mb-8 relative z-20">
                     <div className="relative inline-flex">
-                        <div className="w-28 h-28 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-xl shadow-emerald-200">
-                            <CheckCircle className="w-14 h-14 text-white" strokeWidth={2.5} />
+                        <div className="w-28 h-28 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center shadow-2xl">
+                            <CheckCircle className="w-14 h-14 text-[#FFCC00]" strokeWidth={2.5} />
                         </div>
-                        <div className="absolute -top-2 -right-2 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg animate-bounce">
-                            <Star className="w-5 h-5 text-white" fill="white" />
+                        <div className="absolute -top-2 -right-2 w-10 h-10 bg-[#FFCC00] rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                            <Star className="w-5 h-5 text-[#013D7C]" fill="#013D7C" />
                         </div>
                     </div>
                 </div>
 
                 {/* Thank You Message */}
-                <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4 tracking-tight">
+                <h1 className="text-4xl sm:text-6xl font-black text-white mb-4 tracking-tight font-[Poppins]">
                     Trip Finalized! 🎉
                 </h1>
 
-                <p className="text-xl text-gray-600 mb-2">
-                    Thank you for using <span className="font-bold text-emerald-600">VoyageMind</span>
+                <p className="text-xl text-blue-100 mb-2 font-[Open Sans]">
+                    Thank you for using <span className="font-bold text-[#FFCC00]">VoyageMind</span>
                 </p>
 
-                <p className="text-gray-500 mb-8 flex items-center justify-center gap-1">
-                    <Heart className="w-4 h-4 text-red-500" fill="currentColor" />
+                <p className="text-blue-200/80 mb-10 flex items-center justify-center gap-1">
+                    <Heart className="w-4 h-4 text-[#FFCC00]" fill="currentColor" />
                     We hope you have an amazing journey!
                 </p>
 
                 {/* Trip Summary Card */}
-                <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100">
-                    <div className="flex items-center justify-center gap-2 mb-4">
-                        <Sparkles className="w-5 h-5 text-primary-600" />
-                        <h2 className="text-lg font-bold text-gray-900">Your Trip Summary</h2>
+                <div className="bg-white rounded-3xl shadow-2xl p-8 mb-10 border-4 border-[#FFCC00] relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-[#013D7C]"></div>
+                    <div className="flex items-center justify-center gap-2 mb-6">
+                        <Sparkles className="w-6 h-6 text-[#013D7C]" />
+                        <h2 className="text-xl font-bold text-[#013D7C] font-[Poppins]">Your Trip Summary</h2>
                     </div>
 
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-center gap-3 text-gray-700">
-                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                <MapPin className="w-5 h-5 text-blue-600" />
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-center gap-4 text-gray-800">
+                            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
+                                <MapPin className="w-6 h-6 text-[#013D7C]" />
                             </div>
-                            <span className="text-xl font-semibold">{destination}</span>
+                            <span className="text-2xl font-bold font-[Poppins]">{destination}</span>
                         </div>
 
                         {startDate && endDate && (
-                            <div className="flex items-center justify-center gap-3 text-gray-600">
-                                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                                    <Calendar className="w-5 h-5 text-purple-600" />
+                            <div className="flex items-center justify-center gap-4 text-gray-600">
+                                <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center border border-purple-100">
+                                    <Calendar className="w-6 h-6 text-purple-600" />
                                 </div>
-                                <span>{formatDate(startDate)} → {formatDate(endDate)}</span>
+                                <span className="text-lg font-medium">{formatDate(startDate)} → {formatDate(endDate)}</span>
                             </div>
                         )}
 
-                        <div className="flex items-center justify-center gap-3 text-gray-600">
-                            <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                                <Plane className="w-5 h-5 text-emerald-600" />
+                        <div className="flex items-center justify-center gap-4 text-gray-600">
+                            <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center border border-emerald-100">
+                                <Plane className="w-6 h-6 text-emerald-600" />
                             </div>
-                            <span>{tripData.itinerary?.length || 0} days of adventure planned</span>
+                            <span className="text-lg font-medium">{tripData.itinerary?.length || 0} days of adventure planned</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-                    <Link
-                        to="/itinerary?print=true"
-                        className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 rounded-full font-semibold text-gray-700 hover:border-primary-300 hover:bg-primary-50 transition-all shadow-sm"
-                    >
-                        <Download className="w-5 h-5" />
-                        Download Itinerary
-                    </Link>
-
-
-                </div>
-
-                {/* Navigation Buttons */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
                     <Link
                         to="/itinerary"
-                        className="px-8 py-3 bg-gray-100 text-gray-700 font-semibold rounded-full hover:bg-gray-200 transition-all"
+                        className="px-8 py-4 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all border border-white/20 flex items-center gap-2 backdrop-blur-sm"
                     >
                         ← View Itinerary
                     </Link>
 
+
+
                     <Link
                         to="/"
                         onClick={handleNewTrip}
-                        className="px-8 py-3 bg-gradient-to-r from-emerald-500 to-blue-500 text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center gap-2"
+                        className="btn-primary px-8 py-4 flex items-center gap-2 shadow-xl shadow-[#FFCC00]/20"
                     >
                         <Home className="w-5 h-5" />
                         Plan New Trip
@@ -183,12 +168,9 @@ export default function ThankYou() {
                 </div>
 
                 {/* Footer Message */}
-                <div className="mt-12 pt-8 border-t border-gray-100">
-                    <p className="text-sm text-gray-400">
-                        Made with <Heart className="w-3 h-3 inline text-red-400" fill="currentColor" /> by VoyageMind AI
-                    </p>
-                    <p className="text-xs text-gray-300 mt-1">
-                        Your AI-powered travel companion
+                <div className="border-t border-white/10 pt-8">
+                    <p className="text-sm text-blue-200/60">
+                        Made with <Heart className="w-3 h-3 inline text-[#FFCC00]" fill="currentColor" /> by VoyageMind AI
                     </p>
                 </div>
             </div>

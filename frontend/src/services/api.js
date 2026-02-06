@@ -13,13 +13,11 @@ export async function generateItinerary(tripData) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                destination: tripData.destination.name,
+                destination: tripData.destination,
                 startDate: tripData.dates.start,
                 endDate: tripData.dates.end,
-                budget: tripData.budget,
-                pace: tripData.pace,
+                logistics: tripData.logistics, // Pass the entire logistics object (includes budget, travelers, etc.)
                 interests: tripData.interests,
-                // NEW FIELDS for problem statement alignment
                 availability: tripData.availability,
                 accommodation: tripData.accommodation,
             }),
@@ -73,8 +71,38 @@ export async function checkHealth() {
     }
 }
 
+/**
+ * Validate if a city exists in a specific country
+ */
+export async function validateLocation(city, country) {
+    try {
+        const response = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=10&language=en&format=json`
+        );
+        const data = await response.json();
+
+        if (!data.results || data.results.length === 0) {
+            return false;
+        }
+
+        // Fuzzy match the country
+        const normalize = (str) => str.toLowerCase().trim();
+        const targetCountry = normalize(country);
+
+        return data.results.some(result =>
+            normalize(result.country) === targetCountry ||
+            (result.country_code && normalize(result.country_code) === targetCountry)
+        );
+    } catch (error) {
+        console.error('Validation Error:', error);
+        // If API fails, we shouldn't block the user, so return true (fail open)
+        return true;
+    }
+}
+
 export default {
     generateItinerary,
     getWeather,
     checkHealth,
+    validateLocation
 };
